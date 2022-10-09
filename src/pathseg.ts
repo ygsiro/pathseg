@@ -312,42 +312,82 @@ class Arc extends PathSeg {
     }
 }
 
-class PathSegList{
+class PathSegList {
     private data: Array<PathSeg>
 
-    constructor(){
+    constructor() {
         this.data = new Array()
     }
 
-    M(x: number, y: number){
+    M(x: number, y: number) {
         this.data.push(new Move(true, x, y))
     }
 
-    m(x: number, y: number){
+    m(x: number, y: number) {
         this.data.push(new Move(false, x, y))
     }
 
-    L(x: number, y: number){
+    L(x: number, y: number) {
         this.data.push(new Line(true, x, y))
     }
 
-    l(x: number, y: number){
+    l(x: number, y: number) {
         this.data.push(new Line(false, x, y))
     }
 
-    H(x: number){
+    H(x: number) {
         this.data.push(new LineHorizontal(true, x))
     }
 
-    h(x: number){
+    h(x: number) {
         this.data.push(new LineHorizontal(false, x))
     }
 
-    V(y: number){
+    V(y: number) {
         this.data.push(new LineVertical(true, y))
     }
 
-    v(y: number){
+    v(y: number) {
         this.data.push(new LineVertical(false, y))
+    }
+
+    C(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.data.push(new CurveCubic(true, x, y, x1, y1, x2, y2))
+    }
+
+    c(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.data.push(new CurveCubic(false, x, y, x1, y1, x2, y2))
+    }
+
+    S(x2: number, y2: number, x: number, y: number) {
+        this.data.push(new CurveCubicSmooth(true, x, y, x2, y2))
+    }
+
+    s(x2: number, y2: number, x: number, y: number) {
+        this.data.push(new CurveCubicSmooth(false, x, y, x2, y2))
+    }
+
+    Q(x1: number, y1: number, x: number, y: number) {
+        this.data.push(new CurveQuadratic(true, x, y, x1, y1))
+    }
+
+    q(x1: number, y1: number, x: number, y: number) {
+        this.data.push(new CurveQuadratic(false, x, y, x1, y1))
+    }
+
+    T(x: number, y: number) {
+        this.data.push(new CurveQuadraticSmooth(true, x, y))
+    }
+
+    t(x: number, y: number) {
+        this.data.push(new CurveQuadraticSmooth(false, x, y))
+    }
+
+    Z() {
+        this.data.push(new ClosePath(true))
+    }
+
+    z() {
+        this.data.push(new ClosePath(false))
     }
 }
