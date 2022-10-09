@@ -34,11 +34,11 @@ class ClosePath extends PathSeg {
         super(is_abs);
     };
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "Z" : "z";
     }
 
-    protected togglePos(_pos: Point): void {
+    protected override togglePos(_pos: Point): void {
     }
 }
 
@@ -53,7 +53,7 @@ class Move extends PathSeg {
         this.y = y
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -64,7 +64,7 @@ class Move extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "M" : "m"
     }
 }
@@ -79,7 +79,7 @@ class Line extends PathSeg {
         this.y = y
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -90,7 +90,7 @@ class Line extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "L" : "l"
     }
 }
@@ -103,7 +103,7 @@ class LineHorizontal extends PathSeg {
         this.x = x
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
         }
@@ -112,7 +112,7 @@ class LineHorizontal extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "H" : "h"
     }
 }
@@ -125,7 +125,7 @@ class LineVertical extends PathSeg {
         this.y = y
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.y = this.y - pos.y
         }
@@ -134,7 +134,7 @@ class LineVertical extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "V" : "v"
     }
 }
@@ -157,7 +157,7 @@ class CurveCubic extends PathSeg {
         this.y2 = y2
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -176,7 +176,7 @@ class CurveCubic extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "C" : "c"
     }
 }
@@ -195,7 +195,7 @@ class CurveCubicSmooth extends PathSeg {
         this.y2 = y2
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -210,7 +210,7 @@ class CurveCubicSmooth extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "S" : "s"
     }
 }
@@ -230,7 +230,7 @@ class CurveQuadratic extends PathSeg {
         this.y1 = y1
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -245,7 +245,7 @@ class CurveQuadratic extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "Q" : "q"
     }
 }
@@ -260,7 +260,7 @@ class CurveQuadraticSmooth extends PathSeg {
         this.y = y
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -271,7 +271,7 @@ class CurveQuadraticSmooth extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "T" : "t"
     }
 }
@@ -296,7 +296,7 @@ class Arc extends PathSeg {
         this.sweep = sweep
     }
 
-    protected togglePos(pos: Point): void {
+    protected override togglePos(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -307,7 +307,7 @@ class Arc extends PathSeg {
         }
     }
 
-    command(): string {
+    override command(): string {
         return this.isAbs() ? "A" : "a"
     }
 }
