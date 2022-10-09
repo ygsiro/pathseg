@@ -19,8 +19,8 @@ abstract class PathSeg {
     }
 
     toggleAbsRel(pos: Point): void {
-        this._is_abs = !this._is_abs;
         this.togglePos(pos);
+        this._is_abs = !this._is_abs;
     }
 
     abstract command(): string;
@@ -441,6 +441,12 @@ class Arc extends PathSeg {
 class PathSegList {
     private data: Array<PathSeg>
 
+    private check(){
+        if(this.size() == 0){
+            throw SyntaxError("You must start out with the M or m command")
+        }
+    }
+
     constructor() {
         this.data = new Array()
     }
@@ -454,74 +460,92 @@ class PathSegList {
     }
 
     L(x: number, y: number) {
+        this.check()
         this.data.push(new Line(true, x, y))
     }
 
     l(x: number, y: number) {
+        this.check()
         this.data.push(new Line(false, x, y))
     }
 
     H(x: number) {
+        this.check()
         this.data.push(new LineHorizontal(true, x))
     }
 
     h(x: number) {
+        this.check()
         this.data.push(new LineHorizontal(false, x))
     }
 
     V(y: number) {
+        this.check()
         this.data.push(new LineVertical(true, y))
     }
 
     v(y: number) {
+        this.check()
         this.data.push(new LineVertical(false, y))
     }
 
     C(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveCubic(true, x, y, x1, y1, x2, y2))
     }
 
     c(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveCubic(false, x, y, x1, y1, x2, y2))
     }
 
     S(x2: number, y2: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveCubicSmooth(true, x, y, x2, y2))
     }
 
     s(x2: number, y2: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveCubicSmooth(false, x, y, x2, y2))
     }
 
     Q(x1: number, y1: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveQuadratic(true, x, y, x1, y1))
     }
 
     q(x1: number, y1: number, x: number, y: number) {
+        this.check()
         this.data.push(new CurveQuadratic(false, x, y, x1, y1))
     }
 
     T(x: number, y: number) {
+        this.check()
         this.data.push(new CurveQuadraticSmooth(true, x, y))
     }
 
     t(x: number, y: number) {
+        this.check()
         this.data.push(new CurveQuadraticSmooth(false, x, y))
     }
 
-    A(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number){
+    A(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
+        this.check()
         this.data.push(new Arc(true, x, y, rx, ry, angle, large, sweep))
     }
 
-    a(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number){
+    a(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
+        this.check()
         this.data.push(new Arc(false, x, y, rx, ry, angle, large, sweep))
     }
 
     Z() {
+        this.check()
         this.data.push(new ClosePath(true))
     }
 
     z() {
+        this.check()
         this.data.push(new ClosePath(false))
     }
 
@@ -556,5 +580,43 @@ class PathSegList {
             array.push(seg.arg())
         })
         return array.join("")
+    }
+
+    allAbs() {
+        let pos: Point = { x: 0, y: 0 }
+        let start: Point = pos
+        this.data.forEach(seg => {
+            if (seg.isRel()) {
+                seg.toggleAbsRel(pos)
+            }
+            if (seg instanceof ClosePath) {
+                pos = start
+            }
+            else {
+                pos = seg.nextPos(pos)
+                if (seg instanceof Move) {
+                    start = pos
+                }
+            }
+        })
+    }
+
+    allRel() {
+        let pos: Point = { x: 0, y: 0 }
+        let start: Point = pos
+        this.data.forEach(seg => {
+            if (seg.isAbs()) {
+                seg.toggleAbsRel(pos)
+            }
+            if (seg instanceof ClosePath) {
+                pos = start
+            }
+            else {
+                pos = seg.nextPos(pos)
+                if (seg instanceof Move) {
+                    start = pos
+                }
+            }
+        })
     }
 }
