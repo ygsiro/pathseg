@@ -25,7 +25,7 @@ abstract class PathSeg {
 
     abstract command(): string;
     abstract arg(): string;
-
+    abstract nextPos(pos: Point): Point;
     protected abstract togglePos(_pos: Point): void;
 }
 
@@ -42,8 +42,12 @@ class ClosePath extends PathSeg {
     protected override togglePos(_pos: Point): void {
     }
 
-    override arg(): string{
+    override arg(): string {
         return this.command()
+    }
+
+    override nextPos(_pos: Point): Point {
+        throw SyntaxError("Do not call")
     }
 }
 
@@ -74,7 +78,16 @@ class Move extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.x},${this.y}`
+        return `${this.command()}${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -104,7 +117,16 @@ class Line extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.x},${this.y}`
+        return `${this.command()}${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -130,7 +152,16 @@ class LineHorizontal extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.x}`
+        return `${this.command()}${this.x}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: pos.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: pos.y }
+        }
     }
 }
 
@@ -156,7 +187,16 @@ class LineVertical extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.y}`
+        return `${this.command()}${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: pos.x, y: this.y }
+        }
+        else {
+            return { x: pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -202,7 +242,16 @@ class CurveCubic extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command},${this.x1},${this.y1} ${this.x2},${this.y2} ${this.x},${this.y}`
+        return `${this.command()},${this.x1},${this.y1} ${this.x2},${this.y2} ${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -240,7 +289,16 @@ class CurveCubicSmooth extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.x2},${this.y2} ${this.x},${this.y}`
+        return `${this.command()}${this.x2},${this.y2} ${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -279,7 +337,16 @@ class CurveQuadratic extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.x1},${this.y1} ${this.x},${this.y}`
+        return `${this.command()}${this.x1},${this.y1} ${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -309,7 +376,16 @@ class CurveQuadraticSmooth extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command} ${this.x},${this.y}`
+        return `${this.command()} ${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -349,7 +425,16 @@ class Arc extends PathSeg {
     }
 
     override arg(): string {
-        return `${this.command}${this.r1},${this.r2} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x},${this.y}`
+        return `${this.command()}${this.r1},${this.r2} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x},${this.y}`
+    }
+
+    override nextPos(pos: Point): Point {
+        if (this.isAbs()) {
+            return { x: this.x, y: this.y }
+        }
+        else {
+            return { x: this.x + pos.x, y: this.y + pos.y }
+        }
     }
 }
 
@@ -424,6 +509,14 @@ class PathSegList {
         this.data.push(new CurveQuadraticSmooth(false, x, y))
     }
 
+    A(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number){
+        this.data.push(new Arc(true, x, y, rx, ry, angle, large, sweep))
+    }
+
+    a(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number){
+        this.data.push(new Arc(false, x, y, rx, ry, angle, large, sweep))
+    }
+
     Z() {
         this.data.push(new ClosePath(true))
     }
@@ -438,5 +531,30 @@ class PathSegList {
 
     size(): number {
         return this.data.length
+    }
+
+    currentLoc(): Point {
+        let pos: Point = { x: 0, y: 0 }
+        let start: Point = pos
+        this.data.forEach(seg => {
+            if (seg instanceof ClosePath) {
+                pos = start
+            }
+            else {
+                pos = seg.nextPos(pos)
+                if (seg instanceof Move) {
+                    start = pos
+                }
+            }
+        })
+        return pos
+    }
+
+    arg(): string {
+        const array = new Array<string>()
+        this.data.forEach(seg => {
+            array.push(seg.arg())
+        })
+        return array.join("")
     }
 }
