@@ -394,4 +394,8 @@ class PathSegList {
     clear() {
         this.data.splice(0)
     }
+
+    size(): number {
+        return this.data.length
+    }
 }
