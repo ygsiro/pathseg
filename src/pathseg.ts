@@ -24,6 +24,7 @@ abstract class PathSeg {
     }
 
     abstract command(): string;
+    abstract arg(): string;
 
     protected abstract togglePos(_pos: Point): void;
 }
@@ -39,6 +40,10 @@ class ClosePath extends PathSeg {
     }
 
     protected override togglePos(_pos: Point): void {
+    }
+
+    override arg(): string{
+        return this.command()
     }
 }
 
@@ -67,6 +72,10 @@ class Move extends PathSeg {
     override command(): string {
         return this.isAbs() ? "M" : "m"
     }
+
+    override arg(): string {
+        return `${this.command}${this.x},${this.y}`
+    }
 }
 
 class Line extends PathSeg {
@@ -93,6 +102,10 @@ class Line extends PathSeg {
     override command(): string {
         return this.isAbs() ? "L" : "l"
     }
+
+    override arg(): string {
+        return `${this.command}${this.x},${this.y}`
+    }
 }
 
 class LineHorizontal extends PathSeg {
@@ -115,6 +128,10 @@ class LineHorizontal extends PathSeg {
     override command(): string {
         return this.isAbs() ? "H" : "h"
     }
+
+    override arg(): string {
+        return `${this.command}${this.x}`
+    }
 }
 
 class LineVertical extends PathSeg {
@@ -136,6 +153,10 @@ class LineVertical extends PathSeg {
 
     override command(): string {
         return this.isAbs() ? "V" : "v"
+    }
+
+    override arg(): string {
+        return `${this.command}${this.y}`
     }
 }
 
@@ -179,6 +200,10 @@ class CurveCubic extends PathSeg {
     override command(): string {
         return this.isAbs() ? "C" : "c"
     }
+
+    override arg(): string {
+        return `${this.command},${this.x1},${this.y1} ${this.x2},${this.y2} ${this.x},${this.y}`
+    }
 }
 
 class CurveCubicSmooth extends PathSeg {
@@ -212,6 +237,10 @@ class CurveCubicSmooth extends PathSeg {
 
     override command(): string {
         return this.isAbs() ? "S" : "s"
+    }
+
+    override arg(): string {
+        return `${this.command}${this.x2},${this.y2} ${this.x},${this.y}`
     }
 }
 
@@ -248,6 +277,10 @@ class CurveQuadratic extends PathSeg {
     override command(): string {
         return this.isAbs() ? "Q" : "q"
     }
+
+    override arg(): string {
+        return `${this.command}${this.x1},${this.y1} ${this.x},${this.y}`
+    }
 }
 
 class CurveQuadraticSmooth extends PathSeg {
@@ -273,6 +306,10 @@ class CurveQuadraticSmooth extends PathSeg {
 
     override command(): string {
         return this.isAbs() ? "T" : "t"
+    }
+
+    override arg(): string {
+        return `${this.command} ${this.x},${this.y}`
     }
 }
 
@@ -309,6 +346,10 @@ class Arc extends PathSeg {
 
     override command(): string {
         return this.isAbs() ? "A" : "a"
+    }
+
+    override arg(): string {
+        return `${this.command}${this.r1},${this.r2} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x},${this.y}`
     }
 }
 
