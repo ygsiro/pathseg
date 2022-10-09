@@ -390,4 +390,8 @@ class PathSegList {
     z() {
         this.data.push(new ClosePath(false))
     }
+
+    clear() {
+        this.data.splice(0)
+    }
 }
