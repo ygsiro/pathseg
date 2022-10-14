@@ -629,13 +629,18 @@ class PathSegListEx extends PathSegList {
     constructor() {
         super()
     }
+
     Circle(cx: number, cy: number, r: number) {
         this.M(cx, cy - r)
         this.A(r, r, 0, false, false, cx, cy + r)
         this.A(r, r, 0, false, false, cx, cy - r)
     }
-}
 
-const path = new PathSegListEx()
-path.Circle(100, 100, 100)
-console.log(path.arg())
+    Rect(x1: number, y1: number, x2: number, y2: number) {
+        this.M(x1, y1)
+        this.H(x2)
+        this.V(y2)
+        this.H(x1)
+        this.Z()
+    }
+}
