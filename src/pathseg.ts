@@ -3,6 +3,10 @@ type Point = {
     y: number;
 }
 
+const convert = (num: number, digits: number): string => {
+    return num.toFixed(digits).replace(/\.0+$/, "")
+};
+
 abstract class PathSeg {
     private _is_abs: boolean;
 
@@ -78,7 +82,7 @@ class Move extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -117,7 +121,7 @@ class Line extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -152,7 +156,7 @@ class LineHorizontal extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.x, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -187,7 +191,7 @@ class LineVertical extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -242,7 +246,7 @@ class CurveCubic extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()},${this.x1.toFixed(digits).replace(/\.0+$/, "")},${this.y1.toFixed(digits).replace(/\.0+$/, "")} ${this.x2.toFixed(digits).replace(/\.0+$/, "")},${this.y2.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()},${convert(this.x1, digits)},${convert(this.y1, digits)} ${convert(this.x2, digits)},${convert(this.y2, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -289,7 +293,7 @@ class CurveCubicSmooth extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x2.toFixed(digits).replace(/\.0+$/, "")},${this.y2.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.x2, digits)},${convert(this.y2, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -337,7 +341,7 @@ class CurveQuadratic extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x1.toFixed(digits).replace(/\.0+$/, "")},${this.y1.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${convert(this.x1, digits)},${convert(this.y1, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -376,7 +380,7 @@ class CurveQuadraticSmooth extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()} ${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
@@ -425,7 +429,7 @@ class Arc extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.r1.toFixed(digits).replace(/\.0+$/, "")},${this.r2.toFixed(digits).replace(/\.0+$/, "")} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
+        return `${this.command()}${this.r1.toFixed(digits).replace(/\.0+$/, "")},${this.r2.toFixed(digits).replace(/\.0+$/, "")} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${convert(this.x, digits)},${convert(this.y, digits)}`
     }
 
     override nextPos(pos: Point): Point {
