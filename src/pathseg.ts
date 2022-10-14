@@ -438,11 +438,11 @@ class Arc extends PathSeg {
     }
 }
 
-class PathSegList {
+export class PathSegList {
     private data: Array<PathSeg>
 
-    private check(){
-        if(this.size() == 0){
+    private check() {
+        if (this.size() == 0) {
             throw SyntaxError("You must start out with the M or m command")
         }
     }
