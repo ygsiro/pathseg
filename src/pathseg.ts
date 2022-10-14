@@ -1,4 +1,4 @@
-export type Point = {
+type Point = {
     x: number;
     y: number;
 }
@@ -78,7 +78,7 @@ class Move extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -117,7 +117,7 @@ class Line extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -152,7 +152,7 @@ class LineHorizontal extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x.toFixed(digits)}`
+        return `${this.command()}${this.x.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -187,7 +187,7 @@ class LineVertical extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.y.toFixed(digits)}`
+        return `${this.command()}${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -242,7 +242,7 @@ class CurveCubic extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()},${this.x1.toFixed(digits)},${this.y1.toFixed(digits)} ${this.x2.toFixed(digits)},${this.y2.toFixed(digits)} ${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()},${this.x1.toFixed(digits).replace(/\.0+$/, "")},${this.y1.toFixed(digits).replace(/\.0+$/, "")} ${this.x2.toFixed(digits).replace(/\.0+$/, "")},${this.y2.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -289,7 +289,7 @@ class CurveCubicSmooth extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x2.toFixed(digits)},${this.y2.toFixed(digits)} ${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()}${this.x2.toFixed(digits).replace(/\.0+$/, "")},${this.y2.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -337,7 +337,7 @@ class CurveQuadratic extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.x1.toFixed(digits)},${this.y1.toFixed(digits)} ${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()}${this.x1.toFixed(digits).replace(/\.0+$/, "")},${this.y1.toFixed(digits).replace(/\.0+$/, "")} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -376,7 +376,7 @@ class CurveQuadraticSmooth extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()} ${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -425,7 +425,7 @@ class Arc extends PathSeg {
     }
 
     override arg(digits: number): string {
-        return `${this.command()}${this.r1.toFixed(digits)},${this.r2.toFixed(digits)} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x.toFixed(digits)},${this.y.toFixed(digits)}`
+        return `${this.command()}${this.r1.toFixed(digits).replace(/\.0+$/, "")},${this.r2.toFixed(digits).replace(/\.0+$/, "")} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${this.x.toFixed(digits).replace(/\.0+$/, "")},${this.y.toFixed(digits).replace(/\.0+$/, "")}`
     }
 
     override nextPos(pos: Point): Point {
@@ -438,7 +438,7 @@ class Arc extends PathSeg {
     }
 }
 
-export class PathSegList {
+class PathSegList {
     private data: Array<PathSeg>
 
     private check() {
