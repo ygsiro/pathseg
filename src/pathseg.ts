@@ -625,6 +625,20 @@ class PathSegList {
     }
 }
 
+const rad_to_deg = (angle: number): number => {
+    return angle * Math.PI / 180
+}
+
+const rotate = (pos: Point, angle: number): Point => {
+    angle = rad_to_deg(angle)
+    const cosr = Math.cos(angle)
+    const sinr = Math.sin(angle)
+    return {
+        x: pos.x * cosr - pos.y * sinr,
+        y: pos.x * sinr + pos.y * cosr
+    }
+}
+
 class PathSegListEx extends PathSegList {
     constructor() {
         super()
@@ -641,6 +655,21 @@ class PathSegListEx extends PathSegList {
         this.H(x2)
         this.V(y2)
         this.H(x1)
+        this.Z()
+    }
+
+    CircleGraphSeg(cx: number, cy: number, r: number, a1: number, a2: number) {
+        let pos1: Point = { x: 0, y: -r }
+        let pos2: Point = { x: 0, y: -r }
+        pos1 = rotate(pos1, a1)
+        pos2 = rotate(pos2, a2)
+        pos1.x = pos1.x + cx
+        pos1.y = pos1.y + cy
+        pos2.x = pos2.x + cx
+        pos2.y = pos2.y + cy
+        this.M(cx, cy)
+        this.L(pos1.x, pos1.y)
+        this.A(r, r, 0, a2 - a1 > 180, true, pos2.x, pos2.y)
         this.Z()
     }
 }
