@@ -458,4 +458,12 @@ class PathSegList {
         this.check();
         this.data.push(new Arc(false, x, y, rx, ry, angle, large, sweep));
     }
+
+    clear() {
+        this.data.splice(0)
+    }
+
+    size(): number {
+        return this.data.length
+    }
 }
