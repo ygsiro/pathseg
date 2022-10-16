@@ -466,4 +466,12 @@ class PathSegList {
     size(): number {
         return this.data.length
     }
+
+    segStr(digits: number = 1): string {
+        const array = new Array<string>()
+        this.data.forEach(seg => {
+            array.push(seg.segStr(digits))
+        })
+        return array.join("")
+    }
 }
