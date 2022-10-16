@@ -1,62 +1,51 @@
 type Point = {
-    x: number;
-    y: number;
+    x: number
+    y: number
 }
 
-const convert = (num: number, digits: number): string => {
-    return num.toFixed(digits).replace(/\.0+$/, "")
-};
+const numToStr = (num: number, digits: number): string => {
+    return num.toFixed(digits).replace(/(\.0+|(?<=\.[1-9]+)0+|(?<=-)0(?=\.))/g, "");
+}
 
 abstract class PathSeg {
-    private _is_abs: boolean;
+    private is_abs: boolean;
 
     constructor(is_abs: boolean) {
-        this._is_abs = is_abs;
+        this.is_abs = is_abs;
     }
 
-    isAbs(): boolean {
-        return this._is_abs;
-    }
-
-    isRel(): boolean {
-        return !this._is_abs;
-    }
+    isAbs(): boolean { return this.is_abs; }
+    isRel(): boolean { return !this.is_abs; }
 
     toggleAbsRel(pos: Point): void {
-        this.togglePos(pos);
-        this._is_abs = !this._is_abs;
+        this.toggle(pos);
+        this.is_abs = !this.is_abs;
     }
 
+    abstract segStr(_digits: number): string;
+
     abstract command(): string;
-    abstract arg(digits: number): string;
-    abstract nextPos(pos: Point): Point;
-    protected abstract togglePos(_pos: Point): void;
+    protected abstract toggle(pos: Point): void;
 }
 
 class ClosePath extends PathSeg {
-
     constructor(is_abs: boolean) {
-        super(is_abs);
-    };
+        super(is_abs)
+    }
 
     override command(): string {
         return this.isAbs() ? "Z" : "z";
     }
 
-    protected override togglePos(_pos: Point): void {
+    protected toggle(_pos: Point): void {
     }
 
-    override arg(_digits: number): string {
+    override segStr(_digits: number): string {
         return this.command()
-    }
-
-    override nextPos(_pos: Point): Point {
-        throw SyntaxError("Do not call")
     }
 }
 
 class Move extends PathSeg {
-
     x: number
     y: number
 
@@ -66,7 +55,11 @@ class Move extends PathSeg {
         this.y = y
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "M" : "m";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -77,21 +70,8 @@ class Move extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "M" : "m"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
@@ -105,7 +85,11 @@ class Line extends PathSeg {
         this.y = y
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "L" : "l";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -116,25 +100,12 @@ class Line extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "L" : "l"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
-class LineHorizontal extends PathSeg {
+class Horizontal extends PathSeg {
     x: number
 
     constructor(is_abs: boolean, x: number) {
@@ -142,7 +113,11 @@ class LineHorizontal extends PathSeg {
         this.x = x
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "H" : "v";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
         }
@@ -151,25 +126,12 @@ class LineHorizontal extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "H" : "h"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.x, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: pos.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x, digits)}`
     }
 }
 
-class LineVertical extends PathSeg {
+class Vertical extends PathSeg {
     y: number
 
     constructor(is_abs: boolean, y: number) {
@@ -177,7 +139,11 @@ class LineVertical extends PathSeg {
         this.y = y
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "H" : "v";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.y = this.y - pos.y
         }
@@ -186,25 +152,12 @@ class LineVertical extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "V" : "v"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: pos.x, y: this.y }
-        }
-        else {
-            return { x: pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.y, digits)}`
     }
 }
 
-class CurveCubic extends PathSeg {
+class Cubic extends PathSeg {
     x: number
     y: number
     x1: number
@@ -222,7 +175,11 @@ class CurveCubic extends PathSeg {
         this.y2 = y2
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "C" : "c";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -241,25 +198,12 @@ class CurveCubic extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "C" : "c"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()},${convert(this.x1, digits)},${convert(this.y1, digits)} ${convert(this.x2, digits)},${convert(this.y2, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x1, digits)} ${numToStr(this.y1, digits)} ${numToStr(this.x2, digits)} ${numToStr(this.y2, digits)} ${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
-class CurveCubicSmooth extends PathSeg {
+class CubicSmooth extends PathSeg {
     x: number
     y: number
     x2: number
@@ -273,7 +217,11 @@ class CurveCubicSmooth extends PathSeg {
         this.y2 = y2
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "S" : "s";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -288,26 +236,12 @@ class CurveCubicSmooth extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "S" : "s"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.x2, digits)},${convert(this.y2, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x2, digits)} ${numToStr(this.y2, digits)} ${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
-
-class CurveQuadratic extends PathSeg {
+class Quadratic extends PathSeg {
     x: number
     y: number
     x1: number
@@ -321,7 +255,11 @@ class CurveQuadratic extends PathSeg {
         this.y1 = y1
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "Q" : "q";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -336,25 +274,12 @@ class CurveQuadratic extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "Q" : "q"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.x1, digits)},${convert(this.y1, digits)} ${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x1, digits)} ${numToStr(this.y1, digits)} ${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
-class CurveQuadraticSmooth extends PathSeg {
+class QuadraticSmooth extends PathSeg {
     x: number
     y: number
 
@@ -364,7 +289,11 @@ class CurveQuadraticSmooth extends PathSeg {
         this.y = y
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "T" : "t";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -375,21 +304,8 @@ class CurveQuadraticSmooth extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "T" : "t"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()} ${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
@@ -413,7 +329,11 @@ class Arc extends PathSeg {
         this.sweep = sweep
     }
 
-    protected override togglePos(pos: Point): void {
+    override command(): string {
+        return this.isAbs() ? "A" : "a";
+    }
+
+    override toggle(pos: Point): void {
         if (this.isAbs()) {
             this.x = this.x - pos.x
             this.y = this.y - pos.y
@@ -424,252 +344,118 @@ class Arc extends PathSeg {
         }
     }
 
-    override command(): string {
-        return this.isAbs() ? "A" : "a"
-    }
-
-    override arg(digits: number): string {
-        return `${this.command()}${convert(this.r1, digits)},${convert(this.r2, digits)} ${this.angle} ${this.large ? "1" : "0"} ${this.sweep ? "1" : "0"} ${convert(this.x, digits)},${convert(this.y, digits)}`
-    }
-
-    override nextPos(pos: Point): Point {
-        if (this.isAbs()) {
-            return { x: this.x, y: this.y }
-        }
-        else {
-            return { x: this.x + pos.x, y: this.y + pos.y }
-        }
+    override segStr(digits: number): string {
+        return `${this.command()}${numToStr(this.r1, digits)} ${numToStr(this.r2, digits)} ${numToStr(this.angle, digits)} ${this.large ? "1":"0"} ${this.sweep ? "1":"0"} ${numToStr(this.x, digits)} ${numToStr(this.y, digits)}`
     }
 }
 
 class PathSegList {
     private data: Array<PathSeg>
+    constructor() {
+        this.data = new Array();
+    }
 
     private check() {
-        if (this.size() == 0) {
-            throw SyntaxError("You must start out with the M or m command")
+        if (this.data.length == 0) {
+            throw SyntaxError("The first command must begin with `M` or `m`");
         }
     }
 
-    constructor() {
-        this.data = new Array()
-    }
-
-    M(x: number, y: number) {
-        this.data.push(new Move(true, x, y))
-    }
-
-    m(x: number, y: number) {
-        this.data.push(new Move(false, x, y))
-    }
-
-    L(x: number, y: number) {
-        this.check()
-        this.data.push(new Line(true, x, y))
-    }
-
-    l(x: number, y: number) {
-        this.check()
-        this.data.push(new Line(false, x, y))
-    }
-
-    H(x: number) {
-        this.check()
-        this.data.push(new LineHorizontal(true, x))
-    }
-
-    h(x: number) {
-        this.check()
-        this.data.push(new LineHorizontal(false, x))
-    }
-
-    V(y: number) {
-        this.check()
-        this.data.push(new LineVertical(true, y))
-    }
-
-    v(y: number) {
-        this.check()
-        this.data.push(new LineVertical(false, y))
-    }
-
-    C(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveCubic(true, x, y, x1, y1, x2, y2))
-    }
-
-    c(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveCubic(false, x, y, x1, y1, x2, y2))
-    }
-
-    S(x2: number, y2: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveCubicSmooth(true, x, y, x2, y2))
-    }
-
-    s(x2: number, y2: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveCubicSmooth(false, x, y, x2, y2))
-    }
-
-    Q(x1: number, y1: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveQuadratic(true, x, y, x1, y1))
-    }
-
-    q(x1: number, y1: number, x: number, y: number) {
-        this.check()
-        this.data.push(new CurveQuadratic(false, x, y, x1, y1))
-    }
-
-    T(x: number, y: number) {
-        this.check()
-        this.data.push(new CurveQuadraticSmooth(true, x, y))
-    }
-
-    t(x: number, y: number) {
-        this.check()
-        this.data.push(new CurveQuadraticSmooth(false, x, y))
-    }
-
-    A(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
-        this.check()
-        this.data.push(new Arc(true, x, y, rx, ry, angle, large, sweep))
-    }
-
-    a(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
-        this.check()
-        this.data.push(new Arc(false, x, y, rx, ry, angle, large, sweep))
-    }
-
     Z() {
-        this.check()
-        this.data.push(new ClosePath(true))
+        this.check();
+        this.data.push(new ClosePath(true));
     }
 
     z() {
-        this.check()
-        this.data.push(new ClosePath(false))
+        this.check();
+        this.data.push(new ClosePath(false));
     }
 
-    clear() {
-        this.data.splice(0)
+    M(x: number, y: number) {
+        this.data.push(new Move(true, x, y));
     }
 
-    size(): number {
-        return this.data.length
+    m(x: number, y: number) {
+        this.data.push(new Move(false, x, y));
     }
 
-    currentLoc(): Point {
-        let pos: Point = { x: 0, y: 0 }
-        let start: Point = pos
-        this.data.forEach(seg => {
-            if (seg instanceof ClosePath) {
-                pos = start
-            }
-            else {
-                pos = seg.nextPos(pos)
-                if (seg instanceof Move) {
-                    start = pos
-                }
-            }
-        })
-        return pos
+    L(x: number, y: number) {
+        this.check();
+        this.data.push(new Line(true, x, y));
     }
 
-    arg(digits: number = 1): string {
-        const array = new Array<string>()
-        this.data.forEach(seg => {
-            array.push(seg.arg(digits))
-        })
-        return array.join("")
+    l(x: number, y: number) {
+        this.check();
+        this.data.push(new Line(false, x, y));
     }
 
-    allAbs() {
-        let pos: Point = { x: 0, y: 0 }
-        let start: Point = pos
-        this.data.forEach(seg => {
-            if (seg.isRel()) {
-                seg.toggleAbsRel(pos)
-            }
-            if (seg instanceof ClosePath) {
-                pos = start
-            }
-            else {
-                pos = seg.nextPos(pos)
-                if (seg instanceof Move) {
-                    start = pos
-                }
-            }
-        })
+    H(x: number) {
+        this.check();
+        this.data.push(new Horizontal(true, x));
     }
 
-    allRel() {
-        let pos: Point = { x: 0, y: 0 }
-        let start: Point = pos
-        this.data.forEach(seg => {
-            if (seg.isAbs()) {
-                seg.toggleAbsRel(pos)
-            }
-            if (seg instanceof ClosePath) {
-                pos = start
-            }
-            else {
-                pos = seg.nextPos(pos)
-                if (seg instanceof Move) {
-                    start = pos
-                }
-            }
-        })
-    }
-}
-
-const rad_to_deg = (angle: number): number => {
-    return angle * Math.PI / 180
-}
-
-const rotate = (pos: Point, angle: number): Point => {
-    angle = rad_to_deg(angle)
-    const cosr = Math.cos(angle)
-    const sinr = Math.sin(angle)
-    return {
-        x: pos.x * cosr - pos.y * sinr,
-        y: pos.x * sinr + pos.y * cosr
-    }
-}
-
-class PathSegListEx extends PathSegList {
-    constructor() {
-        super()
+    h(x: number) {
+        this.check();
+        this.data.push(new Horizontal(false, x));
     }
 
-    Circle(cx: number, cy: number, r: number) {
-        this.M(cx, cy - r)
-        this.A(r, r, 0, false, false, cx, cy + r)
-        this.A(r, r, 0, false, false, cx, cy - r)
+    V(y: number) {
+        this.check();
+        this.data.push(new Vertical(true, y));
     }
 
-    Rect(x1: number, y1: number, x2: number, y2: number) {
-        this.M(x1, y1)
-        this.H(x2)
-        this.V(y2)
-        this.H(x1)
-        this.Z()
+    v(y: number) {
+        this.check();
+        this.data.push(new Vertical(false, y));
     }
 
-    CircleGraphSeg(cx: number, cy: number, r: number, a1: number, a2: number) {
-        let pos1: Point = { x: 0, y: -r }
-        let pos2: Point = { x: 0, y: -r }
-        pos1 = rotate(pos1, a1)
-        pos2 = rotate(pos2, a2)
-        pos1.x = pos1.x + cx
-        pos1.y = pos1.y + cy
-        pos2.x = pos2.x + cx
-        pos2.y = pos2.y + cy
-        this.M(cx, cy)
-        this.L(pos1.x, pos1.y)
-        this.A(r, r, 0, a2 - a1 > 180, true, pos2.x, pos2.y)
-        this.Z()
+    C(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.check();
+        this.data.push(new Cubic(true, x, y, x1, y1, x2, y2));
+    }
+
+    c(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+        this.check();
+        this.data.push(new Cubic(false, x, y, x1, y1, x2, y2));
+    }
+
+    S(x2: number, y2: number, x: number, y: number) {
+        this.check();
+        this.data.push(new CubicSmooth(true, x, y, x2, y2));
+    }
+
+    s(x2: number, y2: number, x: number, y: number) {
+        this.check();
+        this.data.push(new CubicSmooth(false, x, y, x2, y2));
+    }
+
+    Q(x1: number, y1: number, x: number, y: number) {
+        this.check();
+        this.data.push(new Quadratic(true, x, y, x1, y1));
+    }
+
+    q(x1: number, y1: number, x: number, y: number) {
+        this.check();
+        this.data.push(new Quadratic(false, x, y, x1, y1));
+    }
+
+    T(x: number, y: number) {
+        this.check();
+        this.data.push(new QuadraticSmooth(true, x, y));
+    }
+
+    t(x: number, y: number) {
+        this.check();
+        this.data.push(new QuadraticSmooth(false, x, y));
+    }
+
+    A(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
+        this.check();
+        this.data.push(new Arc(true, x, y, rx, ry, angle, large, sweep));
+    }
+
+    a(rx: number, ry: number, angle: number, large: boolean, sweep: boolean, x: number, y: number) {
+        this.check();
+        this.data.push(new Arc(false, x, y, rx, ry, angle, large, sweep));
     }
 }
